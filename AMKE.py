@@ -5,6 +5,13 @@ import secrets
 charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
 
 #XORarray = np.array()
+#THE XOR Field
+xorarray = np.zeros((64,64),dtype=np.uint8)
+temp = np.arange(0,64,1,dtype=np.uint8)
+for temp1 in range(64):
+    xorarray[temp1] = temp
+    temp=np.roll(temp,1)
+temp1 = non
 
 #IMP
 #generate Common array
@@ -44,21 +51,50 @@ def splitArrayTo4SubArrays(theArray):
 
 def instructionseperator (inp):
     inp = list(str(inp))
+
     
-    #FIXME - need attention on referenceing the character from inp
     inp = list(map((charset.index()),inp))
     return inp
 
+class operation:
+
+    def __init__(self,array):
+        self.counter = 0
+        self.array = np.array(array,dtype=np.uint8)
+
+
+    def adder(self,amount):
+        self.array = (self.array+amount)%64
+
+
+    def rotate(self,amount):
+        np.transpose(self.array)
+        self.array = np.roll(self.array,amount)
+
+
+
+    def xor(self,amount):
+        for temp in range(8):
+            for temp1 in range(8):
+                self.array[temp][temp1] = xorarray[(self.array[temp][temp1])][amount]
+
+
+    def operate(self,ins):
+        self.ins = list(str(ins))
+
+
+    def getval(self):
+        return self.array
 
 def theOneWayFunction(theArray,instructions):
-    
+
     #pre-preocess the arrat and instruction
     instructions = instructionseperator(instructions)
     array1,array2,array3,array4 = splitArrayTo4SubArrays(theArray)
-    
+
     #TODO apply ARX operation based on the instructions
-    
-    
+
+
     return theArray
 
 
