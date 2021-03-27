@@ -1,5 +1,6 @@
 import numpy as np
 import secrets
+import os
 
 #
 charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
@@ -87,11 +88,38 @@ def theOneWayFunction(theArray,instructions):
     return theArray
 
 
-#temparray = generateArray()
 
-randombit = generate_privatekey()
-print(randombit)
+print("""
+      enter :
+        1. for generating public key (this will be shared)
+        2. for generating your own private key(DO NOT SHARE IT WITH ANYONE)
+        3. for processing the the public key with your own key(this will be shared)
+        4. for processing the the shared key recived form other with your own key(DO NOT SHARE THIS)
+      """)
+option = int(input())
 
-randombit = string_to_int(randombit)
-instruction_expansion(randombit)
+if option not in (1,2,3,4):
+    raise Exception("ENTER A VALID OPTION")
 
+
+
+if option in (1,2):
+    print(temp:=generate_privatekey())
+    os.system(f"echo {temp}|clip")
+
+elif option == 3:
+    publicstring = str(input("ENTER YOUR PUBLIC STRING HERE\n"))
+    if len(publicstring)!=256:
+        raise Exception("INVALID PUBLIC KEY")
+    privatestring = str(input("ENTER YOUR PRIVATE STRING HERE\n"))
+    if len(privatestring)!=256:
+        raise Exception("INVALID PUBLIC KEY")
+    if publicstring==privatestring:
+        raise Exception("PUBLIC and PRIVATE KEY BOTH ARE SAME")
+    
+    publicstring = stringToArray(publicstring)#this is 2D
+    privatestring = string_to_int(privatestring)#this is 1D
+    
+    
+    print(publicstring)
+    print(privatestring)
