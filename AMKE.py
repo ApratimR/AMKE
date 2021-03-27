@@ -11,99 +11,87 @@ temp = np.arange(0,64,1,dtype=np.uint8)
 for temp1 in range(64):
     xorarray[temp1] = temp
     temp=np.roll(temp,1)
-temp1 = non
-
-#IMP
-#generate Common array
-def generateArray():
-    numpy_array = np.zeros((16,16),dtype=np.uint8)
-    for temp1 in range(16):
-        for temp2 in range(16):
-            numpy_array[temp1][temp2]=secrets.randbelow(64)
-    return numpy_array
 
 
-def arrayToString(theArray=None):
+#generates key for any use
+def generate_privatekey():
+    randombit = secrets.token_urlsafe(192)
+    return randombit
+
+
+#takes in array of 16*16 and return a string of lenght 16*16
+def arrayToString(theArray=None,size=16):
     emptyString=""
-    for temp1 in range(16):
-        for temp2 in range(16):
+    for temp1 in range(size):
+        for temp2 in range(size):
             emptyString+=charset[theArray[temp1][temp2]]
     return emptyString
 
-
-def stringToArray(theString=None):
-    emptyArray = np.zeros((16,16),dtype=np.uint8)
+#takes in string of 16*16 and return a array of int with size 16*16
+def stringToArray(theString=None,size=16):
+    emptyArray = np.zeros((size,size),dtype=np.uint8)
     stringcounter = 0
-    for temp1 in range(16):
-        for temp2 in range(16):
+    for temp1 in range(size):
+        for temp2 in range(size):
             emptyArray[temp1][temp2]=charset.index(theString[stringcounter])
             stringcounter+=1
     return emptyArray
 
 
-def splitArrayTo4SubArrays(theArray):
-    array1 = np.array((theArray[0: 8,0: 8]),dtype=np.uint8)
-    array2 = np.array((theArray[0: 8,8:16]),dtype=np.uint8)
-    array3 = np.array((theArray[8:16,0: 8]),dtype=np.uint8)
-    array4 = np.array((theArray[8:16,8:16]),dtype=np.uint8)
-    return array1,array2,array3,array4
-
-
-def instructionseperator (inp):
+#string to 1D list[int]
+def string_to_int(inp):
     inp = list(str(inp))
-
-    
-    inp = list(map((charset.index()),inp))
+    inp = [charset.index(x) for x in inp]
     return inp
 
-class operation:
-
-    def __init__(self,array):
-        self.counter = 0
-        self.array = np.array(array,dtype=np.uint8)
-
-
-    def adder(self,amount):
-        self.array = (self.array+amount)%64
-
-
-    def rotate(self,amount):
-        np.transpose(self.array)
-        self.array = np.roll(self.array,amount)
-
-
-
-    def xor(self,amount):
-        for temp in range(8):
-            for temp1 in range(8):
-                self.array[temp][temp1] = xorarray[(self.array[temp][temp1])][amount]
+#makes multiple keys related to the mainn key
+def instruction_expansion(inp_key):
+    shadow = 1
+    array1 = np.array(inp_key)
+    array1 = np.reshape(array1,(16,16))
+    for _ in range(2):
+        for temp1 in range(16):
+            for temp2 in range(16):
+                array1[temp1][temp2]+= array1[(temp1+1)%16] [temp2]
+                array1[temp1][temp2]=array1[temp1][temp2]%64
+                array1[temp1][temp2]+= array1[temp1]        [(temp2+1)%16]
+                array1[temp1][temp2]=array1[temp1][temp2]%64
+                array1[temp1][temp2]+= array1[(temp1+17)%16][temp2]
+                array1[temp1][temp2]=array1[temp1][temp2]%64
+                array1[temp1][temp2]+= array1[temp1]        [(temp2+17)%16]
+                array1[temp1][temp2]=array1[temp1][temp2]%64
+                array1[temp1][temp2]=(array1[temp1][temp2]+shadow)%64
+                shadow = array1[temp1][temp2]
+    print(array1)
 
 
-    def operate(self,ins):
-        self.ins = list(str(ins))
 
-
-    def getval(self):
-        return self.array
 
 def theOneWayFunction(theArray,instructions):
-
+    array_length = len(theArray)
+    if array_length**2 != len(instructions):
+        raise Exception("instruction lenght invalid")
+    
+    for temp1 in range(array_length):
+        for temp2 in range(array_length):
+            temp1 = temp2
+            temp2 = temp1
+            pass
+        
     #pre-preocess the arrat and instruction
-    instructions = instructionseperator(instructions)
-    array1,array2,array3,array4 = splitArrayTo4SubArrays(theArray)
+    #instructions = instruction_seperator(instructions)
 
-    #TODO apply ARX operation based on the instructions
+   
 
 
     return theArray
 
 
-temparray = generateArray()
+#temparray = generateArray()
 
-
-randombit = secrets.token_urlsafe(256)
-randombit = instructionseperator(randombit)
+randombit = generate_privatekey()
 print(randombit)
 
+randombit = string_to_int(randombit)
+instruction_expansion(randombit)
 
-#print(splitArrayTo4SubArrays(temparray))
