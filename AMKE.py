@@ -46,23 +46,34 @@ def string_to_int(inp):
     return inp
 
 #makes multiple keys related to the mainn key
-def instruction_expansion(inp_key):
-    shadow = 1
-    array1 = np.array(inp_key)
+def instruction_expansion(publicpart,privatepart):
+    #need to work on counter OVERFLOW NOTE
+    counter = 0
+    array1 = np.array(publicpart)
     array1 = np.reshape(array1,(16,16))
     for _ in range(2):
         for temp1 in range(16):
             for temp2 in range(16):
                 array1[temp1][temp2]+= array1[(temp1+1)%16] [temp2]
-                array1[temp1][temp2]=array1[temp1][temp2]%64
+                array1[temp1][temp2]=(array1[temp1][temp2]+privatepart[counter])%64
+                counter+=1
+                
                 array1[temp1][temp2]+= array1[temp1]        [(temp2+1)%16]
-                array1[temp1][temp2]=array1[temp1][temp2]%64
+                array1[temp1][temp2]=(array1[temp1][temp2]+privatepart[counter])%64
+                counter+=1
+                
                 array1[temp1][temp2]+= array1[(temp1+17)%16][temp2]
-                array1[temp1][temp2]=array1[temp1][temp2]%64
+                array1[temp1][temp2]=(array1[temp1][temp2]+privatepart[counter])%64
+                counter+=1
+                
                 array1[temp1][temp2]+= array1[temp1]        [(temp2+17)%16]
-                array1[temp1][temp2]=array1[temp1][temp2]%64
+                array1[temp1][temp2]=(array1[temp1][temp2]+privatepart[counter])%64
+                counter+=1
+                
+                
+                shadow = privatepart[(array1[temp1][temp2]*array1[7][8])%256]
                 array1[temp1][temp2]=(array1[temp1][temp2]+shadow)%64
-                shadow = array1[temp1][temp2]
+                
     print(array1)
 
 
@@ -119,6 +130,7 @@ elif option == 3:
     
     publicstring = stringToArray(publicstring)#this is 2D
     privatestring = string_to_int(privatestring)#this is 1D
+    instruction_expansion(publicstring,privatestring)
     
     
     print(publicstring)
