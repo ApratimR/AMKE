@@ -45,37 +45,44 @@ def string_to_int(inp):
     inp = [charset.index(x) for x in inp]
     return inp
 
+#1D list[int] to string
+def int_to_string(inp):
+    emptyString=""
+    for temp in range(256):
+        emptyString+=charset[inp[temp]]
+    return emptyString
+
 #makes multiple keys related to the mainn key
 def instruction_expansion(publicpart,privatepart):
     #need to work on counter OVERFLOW NOTE
     counter = 0
-    array1 = np.array(publicpart)
-    array1 = np.reshape(array1,(16,16))
-    for _ in range(2):
+    for _ in range(4):
         for temp1 in range(16):
             for temp2 in range(16):
-                array1[temp1][temp2]+= array1[(temp1+1)%16] [temp2]
-                array1[temp1][temp2]=(array1[temp1][temp2]+privatepart[counter])%64
+                publicpart[temp1][temp2]+= publicpart[(temp1+1)%16] [temp2]
+                publicpart[temp1][temp2]=(publicpart[temp1][temp2]+privatepart[counter])%64
                 counter+=1
+                counter = counter%256
                 
-                array1[temp1][temp2]+= array1[temp1]        [(temp2+1)%16]
-                array1[temp1][temp2]=(array1[temp1][temp2]+privatepart[counter])%64
+                publicpart[temp1][temp2]+= publicpart[temp1]        [(temp2+1)%16]
+                publicpart[temp1][temp2]=(publicpart[temp1][temp2]+privatepart[counter])%64
                 counter+=1
+                counter = counter%256
                 
-                array1[temp1][temp2]+= array1[(temp1+17)%16][temp2]
-                array1[temp1][temp2]=(array1[temp1][temp2]+privatepart[counter])%64
+                publicpart[temp1][temp2]+= publicpart[(temp1+17)%16][temp2]
+                publicpart[temp1][temp2]=(publicpart[temp1][temp2]+privatepart[counter])%64
                 counter+=1
+                counter = counter%256
                 
-                array1[temp1][temp2]+= array1[temp1]        [(temp2+17)%16]
-                array1[temp1][temp2]=(array1[temp1][temp2]+privatepart[counter])%64
+                publicpart[temp1][temp2]+= publicpart[temp1]        [(temp2+17)%16]
+                publicpart[temp1][temp2]=(publicpart[temp1][temp2]+privatepart[counter])%64
                 counter+=1
+                counter = counter%256
                 
-                
-                shadow = privatepart[(array1[temp1][temp2]*array1[7][8])%256]
-                array1[temp1][temp2]=(array1[temp1][temp2]+shadow)%64
-                
-    print(array1)
-
+                shadow = privatepart[(publicpart[temp1][temp2]*publicpart[7][8])%256]
+                publicpart[temp1][temp2]=(publicpart[temp1][temp2]+shadow)%64
+    publicpart = np.reshape(publicpart,256)
+    return publicpart
 
 
 
@@ -98,6 +105,13 @@ def theOneWayFunction(theArray,instructions):
 
     return theArray
 
+def printf(inp):
+    print(f"""
+\u001b[31m\u001b[1m========PUBLIC/PRIVATE VARIABLE START HERE========\u001b[0m
+\u001b[7m{inp}\u001b[0m
+\u001b[31m\u001b[1m========PUBLIC/PRIVATE VARIABLE ENDS HERE========\u001b[0m
+""")
+
 
 
 print("""
@@ -115,8 +129,9 @@ if option not in (1,2,3,4):
 
 
 if option in (1,2):
-    print(temp:=generate_privatekey())
-    os.system(f"echo {temp}|clip")
+    temp=generate_privatekey()
+    printf(temp)
+    #os.system(f"echo {temp}|clip")
 
 elif option == 3:
     publicstring = str(input("ENTER YOUR PUBLIC STRING HERE\n"))
@@ -130,8 +145,10 @@ elif option == 3:
     
     publicstring = stringToArray(publicstring)#this is 2D
     privatestring = string_to_int(privatestring)#this is 1D
-    instruction_expansion(publicstring,privatestring)
+    temp = instruction_expansion(publicstring,privatestring)
+    temp = int_to_string(temp)
+    printf(temp)
     
     
-    print(publicstring)
-    print(privatestring)
+    # print(publicstring)
+    # print(privatestring)
