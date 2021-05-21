@@ -12,7 +12,7 @@ def generate_key():
     return randombit
 
 def generate_rounds():
-    return secrets.randbelow(4096) #chage this to some other amount
+    return secrets.randbelow(2048) #chage this to some other amount
 
 # string to 1D list[int]
 def string_to_int(inp):
